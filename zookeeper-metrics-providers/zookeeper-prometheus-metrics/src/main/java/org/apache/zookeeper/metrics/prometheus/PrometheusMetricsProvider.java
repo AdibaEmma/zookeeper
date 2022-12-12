@@ -22,41 +22,23 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.MetricsServlet;
 import io.prometheus.client.hotspot.DefaultExports;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.Enumeration;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.zookeeper.metrics.Counter;
-import org.apache.zookeeper.metrics.CounterSet;
-import org.apache.zookeeper.metrics.Gauge;
-import org.apache.zookeeper.metrics.GaugeSet;
-import org.apache.zookeeper.metrics.MetricsContext;
-import org.apache.zookeeper.metrics.MetricsProvider;
-import org.apache.zookeeper.metrics.MetricsProviderLifeCycleException;
-import org.apache.zookeeper.metrics.Summary;
-import org.apache.zookeeper.metrics.SummarySet;
+import org.apache.zookeeper.metrics.*;
 import org.apache.zookeeper.server.RateLogger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 /**
  * A Metrics Provider implementation based on https://prometheus.io.
@@ -302,6 +284,11 @@ public class PrometheusMetricsProvider implements MetricsProvider {
             if (existing != null) {
                 existing.unregister();
             }
+        }
+
+        @Override
+        public Map<String, String> contextLabels() {
+            return null;
         }
 
         @Override

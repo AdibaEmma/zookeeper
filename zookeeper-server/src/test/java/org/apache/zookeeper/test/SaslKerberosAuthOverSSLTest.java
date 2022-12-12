@@ -137,7 +137,7 @@ public class SaslKerberosAuthOverSSLTest extends ClientBase {
         // generating the SASL config to use (contains sections both for the client and the server)
         // note: we use "refreshKrb5Config=true" to refresh the kerberos config in the JVM,
         // making sure that we use the latest config even if other tests already have been executed
-        // and initialized the kerberos client configs before)
+        // and initialized the kerberos client config before)
         try {
             File tmpDir = createTmpDir();
             saslConfFile = new File(tmpDir, "jaas.conf");
@@ -172,7 +172,7 @@ public class SaslKerberosAuthOverSSLTest extends ClientBase {
         }
 
         // refresh the SASL configuration in this JVM (making sure that we use the latest config
-        // even if other tests already have been executed and initialized the SASL configs before)
+        // even if other tests already have been executed and initialized the SASL config before)
         Configuration.getConfiguration().refresh();
     }
 

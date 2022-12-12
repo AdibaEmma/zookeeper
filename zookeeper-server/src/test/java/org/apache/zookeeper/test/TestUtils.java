@@ -18,13 +18,23 @@
 
 package org.apache.zookeeper.test;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import org.apache.zookeeper.common.utils.Exit;
+import org.apache.zookeeper.common.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * This class contains test utility methods
  */
 public class TestUtils {
+    private static final Logger log = LoggerFactory.getLogger(TestUtils.class);
 
     /**
      * deletes a folder recursively
@@ -56,5 +66,39 @@ public class TestUtils {
     public static boolean deleteFileRecursively(File file) {
         return deleteFileRecursively(file, false);
     }
+
+    public static File tempFile(final String prefix, final String suffix) throws IOException {
+        final File file = Files.createTempFile(prefix, suffix).toFile();
+        file.deleteOnExit();
+
+        Exit.addShutdownHook("delete-temp-file-shutdown-hook", () -> {
+            try {
+                Utils.delete(file);
+            } catch (IOException e) {
+                log.error("Error deleting {}", file.getAbsolutePath(), e);
+            }
+        });
+
+        return file;
+    }
+
+    /**
+     * Create an empty file in the default temporary-file directory, using `kafka` as the prefix and `tmp` as the
+     * suffix to generate its name.
+     */
+    public static File tempFile() throws IOException {
+        return tempFile("zookeeper", ".tmp");
+    }
+
+    /**
+     * Create a file with the given contents in the default temporary-file directory,
+     * using `kafka` as the prefix and `tmp` as the suffix to generate its name.
+     */
+    public static File tempFile(final String contents) throws IOException {
+        final File file = tempFile();
+        Files.write(file.toPath(), contents.getBytes(StandardCharsets.UTF_8));
+        return file;
+    }
+
 
 }

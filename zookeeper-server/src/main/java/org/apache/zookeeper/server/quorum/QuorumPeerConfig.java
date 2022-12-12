@@ -122,7 +122,7 @@ public class QuorumPeerConfig {
     protected String quorumServerLoginContext = QuorumAuth.QUORUM_SERVER_SASL_LOGIN_CONTEXT_DFAULT_VALUE;
     protected int quorumCnxnThreadsSize;
 
-    // multi address related configs
+    // multi address related config
     private boolean multiAddressEnabled = Boolean.parseBoolean(
         System.getProperty(QuorumPeer.CONFIG_KEY_MULTI_ADDRESS_ENABLED, QuorumPeer.CONFIG_DEFAULT_MULTI_ADDRESS_ENABLED));
     private boolean multiAddressReachabilityCheckEnabled =

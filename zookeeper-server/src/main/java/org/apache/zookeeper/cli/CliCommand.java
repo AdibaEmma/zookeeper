@@ -18,9 +18,10 @@
 
 package org.apache.zookeeper.cli;
 
+import org.apache.zookeeper.ZooKeeper;
+
 import java.io.PrintStream;
 import java.util.Map;
-import org.apache.zookeeper.ZooKeeper;
 
 /**
  * base class for all CLI commands

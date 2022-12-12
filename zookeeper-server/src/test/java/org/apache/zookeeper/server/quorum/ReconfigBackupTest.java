@@ -301,7 +301,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
             assertNotNull(dynamicConfigFile);
 
             // All dynamic files created with the same version should have
-            // same configs, and they should be equal to the config we get from QuorumPeer.
+            // same config, and they should be equal to the config we get from QuorumPeer.
             if (i == 0) {
                 dynamicFileContent = new String(Files.readAllBytes(dynamicConfigFile.toPath()), UTF_8);
                 // last line in file should be version number

@@ -623,7 +623,7 @@ public class Leader extends LearnerMaster {
                 // This was added in ZOOKEEPER-1783. The initial config has version 0 (not explicitly
                 // specified by the user; the lack of version in a config file is interpreted as version=0).
                 // As soon as a config is established we would like to increase its version so that it
-                // takes presedence over other initial configs that were not established (such as a config
+                // takes presedence over other initial config that were not established (such as a config
                 // of a server trying to join the ensemble, which may be a partial view of the system, not the full config).
                 // We chose to set the new version to the one of the NEWLEADER message. However, before we can do that
                 // there must be agreement on the new version, so we can only change the version when sending/receiving UPTODATE,

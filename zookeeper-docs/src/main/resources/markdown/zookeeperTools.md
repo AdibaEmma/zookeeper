@@ -246,7 +246,7 @@ Recursively collect and display child count and data size for a selected node.
 -- /solr
 --   children: 1773
 --   data: 8419162
----- /solr/configs
+---- /solr/config
 ----   children: 1640
 ----   data: 8407643
 ---- /solr/overseer

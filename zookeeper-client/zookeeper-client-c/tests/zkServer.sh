@@ -187,7 +187,7 @@ start|startClean|startRequireSASLAuth|startCleanReadOnly)
     cd - > /dev/null
 
 
-    # ===== prepare the configs
+    # ===== prepare the config
     sed "s#TMPDIR#${tmp_dir}#g;s#CERTDIR#${certs_dir}#g;s#MAXCLIENTCONNECTIONS#${ZKMAXCNXNS}#g;s#CLIENTPORT#${ZOOPORT}#g" ${tests_dir}/zoo.cfg > "${tmp_dir}/zoo.cfg"
     if [ "x$read_only" != "x" ]
     then

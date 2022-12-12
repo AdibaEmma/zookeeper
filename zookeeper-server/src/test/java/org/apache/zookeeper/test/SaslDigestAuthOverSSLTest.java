@@ -109,7 +109,7 @@ public class SaslDigestAuthOverSSLTest extends ClientBase {
         }
 
         // refresh the SASL configuration in this JVM (making sure that we use the latest config
-        // even if other tests already have been executed and initialized the SASL configs before)
+        // even if other tests already have been executed and initialized the SASL config before)
         Configuration.getConfiguration().refresh();
     }
 

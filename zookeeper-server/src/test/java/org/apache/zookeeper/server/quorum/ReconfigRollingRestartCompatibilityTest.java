@@ -187,7 +187,7 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
 
         // We are adding two new servers to the ensemble. These two servers should have the config which includes
         // all five servers (the old three servers, plus the two servers added). The old three servers should only
-        // have the old three server config, because disabling reconfig will prevent synchronizing configs between
+        // have the old three server config, because disabling reconfig will prevent synchronizing config between
         // peers.
         mt = Arrays.copyOf(mt, mt.length + 2);
         for (int i = 3; i < 5; ++i) {

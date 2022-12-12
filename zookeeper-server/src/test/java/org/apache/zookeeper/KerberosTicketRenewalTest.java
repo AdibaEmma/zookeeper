@@ -80,7 +80,7 @@ public class KerberosTicketRenewalTest {
 
     // note: we use "refreshKrb5Config=true" to refresh the kerberos config in the JVM,
     // making sure that we use the latest config even if other tests already have been executed
-    // and initialized the kerberos client configs before)
+    // and initialized the kerberos client config before)
     String jaasEntries = ""
       + "ClientUsingKerberos {\n"
       + "  com.sun.security.auth.module.Krb5LoginModule required\n"
@@ -271,7 +271,7 @@ public class KerberosTicketRenewalTest {
     }
 
     // refresh the SASL configuration in this JVM (making sure that we use the latest config
-    // even if other tests already have been executed and initialized the SASL configs before)
+    // even if other tests already have been executed and initialized the SASL config before)
     Configuration.getConfiguration().refresh();
   }
 

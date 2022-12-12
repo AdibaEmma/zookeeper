@@ -176,6 +176,7 @@
             </Export-Package>
             <Bundle-Name>ZooKeeper Jute Bundle</Bundle-Name>
             <Bundle-DocURL>https://zookeeper.apache.org/doc/current/</Bundle-DocURL>
+            <!--suppress UnresolvedMavenProperty -->
             <Implementation-Build>${mvngit.commit.id}</Implementation-Build>
             <Merge-Headers>!Implementation-Build,*</Merge-Headers>
           </instructions>

@@ -18,6 +18,8 @@
 
 package org.apache.zookeeper.metrics;
 
+import java.util.Map;
+
 /**
  * A MetricsContext is like a namespace for metrics. Each component/submodule
  * will have its own MetricsContext.
@@ -100,6 +102,8 @@ public interface MetricsContext {
      *
      */
     void unregisterGaugeSet(String name);
+
+    Map<String, String> contextLabels();
 
     enum DetailLevel {
         /**

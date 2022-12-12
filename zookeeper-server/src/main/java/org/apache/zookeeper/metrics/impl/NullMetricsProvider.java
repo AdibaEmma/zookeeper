@@ -18,17 +18,11 @@
 
 package org.apache.zookeeper.metrics.impl;
 
+import org.apache.zookeeper.metrics.*;
+
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import org.apache.zookeeper.metrics.Counter;
-import org.apache.zookeeper.metrics.CounterSet;
-import org.apache.zookeeper.metrics.Gauge;
-import org.apache.zookeeper.metrics.GaugeSet;
-import org.apache.zookeeper.metrics.MetricsContext;
-import org.apache.zookeeper.metrics.MetricsProvider;
-import org.apache.zookeeper.metrics.MetricsProviderLifeCycleException;
-import org.apache.zookeeper.metrics.Summary;
-import org.apache.zookeeper.metrics.SummarySet;
 
 /**
  * This is a dummy MetricsProvider which does nothing.
@@ -98,6 +92,11 @@ public class NullMetricsProvider implements MetricsProvider {
 
         @Override
         public void unregisterGaugeSet(final String name) {
+        }
+
+        @Override
+        public Map<String, String> contextLabels() {
+            return null;
         }
 
         @Override
