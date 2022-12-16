@@ -18,10 +18,10 @@
 
 package org.apache.zookeeper.server.auth;
 
-import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.spi.LoginModule;
+import java.util.Map;
 
 public class DigestLoginModule implements LoginModule {
 
@@ -48,7 +48,6 @@ public class DigestLoginModule implements LoginModule {
             String password = (String) options.get("password");
             this.subject.getPrivateCredentials().add(password);
         }
-        return;
     }
 
     public boolean logout() {

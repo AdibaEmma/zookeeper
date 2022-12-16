@@ -17,7 +17,7 @@
 package org.apache.zookeeper.common.security.authenticator;
 
 import org.apache.zookeeper.common.config.types.Password;
-import org.apache.zookeeper.server.auth.oauthbearer.OAuthBearerLoginModule;
+import org.apache.zookeeper.common.security.oauthbearer.OAuthBearerLoginModule;
 import org.apache.zookeeper.common.security.plain.PlainLoginModule;
 import org.apache.zookeeper.common.security.scram.ScramLoginModule;
 import org.apache.zookeeper.common.security.scram.internals.ScramMechanism;
