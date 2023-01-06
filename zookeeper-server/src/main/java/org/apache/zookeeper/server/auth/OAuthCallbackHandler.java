@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.zookeeper.server.auth.OAuthModule.RAISE_UNSUPPORTED_CB_EXCEPTION_FLAG;
+import static org.apache.zookeeper.server.auth.OAuthLoginModule.RAISE_UNSUPPORTED_CB_EXCEPTION_FLAG;
 
 public class OAuthCallbackHandler implements AuthenticateCallbackHandler {
     private final OAuthBearerToken[] tokens;
