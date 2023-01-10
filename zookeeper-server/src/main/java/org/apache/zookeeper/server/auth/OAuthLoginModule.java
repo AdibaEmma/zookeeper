@@ -11,7 +11,13 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,6 +49,7 @@ public class OAuthLoginModule implements LoginModule {
     private SaslExtensions extensionsRequiringCommit = null;
     private SaslExtensions myCommittedExtensions = null;
     private LoginState loginState;
+    private String authEndpoint = "";
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
@@ -54,12 +61,29 @@ public class OAuthLoginModule implements LoginModule {
             this.subject.getPublicCredentials().add(username);
             String password = (String) options.get("oauth.client-secret");
             this.subject.getPrivateCredentials().add(password);
+            authEndpoint = (String) options.get("oauth.auth-endpoint");
         }
     }
 
     @Override
     public boolean login() throws LoginException {
-        //TODO Http call with clieth auth data to authorization endpoing of the provider
+        Map<String, String> authData = new HashMap<>();
+        authData.put("authEndpoint", "OAUTHBEARER_MECHANISM");
+        //authData.put()
+        HttpClient httpClient = HttpClient.newBuilder()
+        .build();
+        HttpRequest authRequest = HttpRequest.newBuilder()
+        .POST(null)
+        .uri(URI.create(authEndpoint))
+        .build();
+        try {
+            HttpResponse<String> response = httpClient.send(authRequest, HttpResponse.BodyHandlers.ofString());
+            LOG.info("HttpResponse from auth provider\n{}", response.body());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        
         return true;
     }
 
