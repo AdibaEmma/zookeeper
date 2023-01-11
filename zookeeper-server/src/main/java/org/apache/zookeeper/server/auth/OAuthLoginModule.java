@@ -12,7 +12,13 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -49,7 +55,7 @@ public class OAuthLoginModule implements LoginModule {
     private SaslExtensions extensionsRequiringCommit = null;
     private SaslExtensions myCommittedExtensions = null;
     private LoginState loginState;
-    private String authEndpoint = "";
+    private String authEndpoint,username, password = "";
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
@@ -57,9 +63,9 @@ public class OAuthLoginModule implements LoginModule {
         if(options.containsKey("oauth.client-id")){
             LOG.info("Options in jaas config contains the key, {}", options.get("oauth.client-id"));
             this.subject = subject;
-            String username = (String) options.get("oauth.client-id");
+            username = (String) options.get("oauth.client-id");
             this.subject.getPublicCredentials().add(username);
-            String password = (String) options.get("oauth.client-secret");
+            password = (String) options.get("oauth.client-secret");
             this.subject.getPrivateCredentials().add(password);
             authEndpoint = (String) options.get("oauth.auth-endpoint");
         }
@@ -67,18 +73,50 @@ public class OAuthLoginModule implements LoginModule {
 
     @Override
     public boolean login() throws LoginException {
-        Map<String, String> authData = new HashMap<>();
-        authData.put("authEndpoint", "OAUTHBEARER_MECHANISM");
-        //authData.put()
-        HttpClient httpClient = HttpClient.newBuilder()
-        .build();
-        HttpRequest authRequest = HttpRequest.newBuilder()
-        .POST(null)
-        .uri(URI.create(authEndpoint))
-        .build();
+        LOG.info("Options in jaas config contains auth provider endpoint, {}", authEndpoint);
         try {
-            HttpResponse<String> response = httpClient.send(authRequest, HttpResponse.BodyHandlers.ofString());
-            LOG.info("HttpResponse from auth provider\n{}", response.body());
+            URL url = new URL(authEndpoint);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setConnectTimeout(50000);
+            con.setReadTimeout(100000);
+            // Send post request
+            if(null != body)
+            {
+                con.setDoOutput(true);
+                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                wr.write(body.getBytes());
+                wr.flush();
+                wr.close();
+            }
+            int responseCode = con.getResponseCode();
+            String respd = "";
+            LOG.info("\n Sending {} request to URL {}: ", con.getRequestMethod(), url);
+            LOG.info("Request body: {}" +  body);
+            System.out.println("Response Code : " + responseCode);
+        
+            InputStream inputStream = null;
+            try
+            {
+                inputStream = con.getInputStream();
+            } catch (Exception e)
+            {
+                inputStream = con.getErrorStream();
+            }
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(inputStream));
+            String inputLine = null;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null)
+            {
+                respd = response.append(inputLine).toString();
+            }
+            in.close();
+
+            //Print contents of the response from call here
+
         } catch (Exception e) {
             e.printStackTrace();
         }
