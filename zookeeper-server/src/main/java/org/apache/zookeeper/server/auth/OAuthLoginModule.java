@@ -2,8 +2,8 @@ package org.apache.zookeeper.server.auth;
 
 import org.apache.zookeeper.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.zookeeper.common.security.auth.SaslExtensions;
-import org.apache.zookeeper.common.security.oauthbearer.OAuthBearerLoginModule;
 import org.apache.zookeeper.common.security.oauthbearer.OAuthBearerToken;
+import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,19 +11,13 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +38,8 @@ public class OAuthLoginModule implements LoginModule {
     private static final Logger LOG = LoggerFactory.getLogger(OAuthLoginModule.class);
     private static final SaslExtensions EMPTY_EXTENSIONS = new SaslExtensions(Collections.emptyMap());
     private Subject subject = null;
+
+    private JSONObject body = new JSONObject();
 
     OAuthBearerToken[] tokens = new OAuthBearerToken[] {oAuthBearerTokens(), oAuthBearerTokens(), oAuthBearerTokens()};
 
@@ -68,9 +64,12 @@ public class OAuthLoginModule implements LoginModule {
             password = (String) options.get("oauth.client-secret");
             this.subject.getPrivateCredentials().add(password);
             authEndpoint = (String) options.get("oauth.auth-endpoint");
+            body.put("auth-endpoint", authEndpoint);
+            body.put("client-id", username);
+            body.put("client-secret", password);
         }
     }
-
+    
     @Override
     public boolean login() throws LoginException {
         LOG.info("Options in jaas config contains auth provider endpoint, {}", authEndpoint);
@@ -81,11 +80,11 @@ public class OAuthLoginModule implements LoginModule {
             con.setConnectTimeout(50000);
             con.setReadTimeout(100000);
             // Send post request
-            if(null != body)
+            if(body != null)
             {
                 con.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                wr.write(body.getBytes());
+                wr.write(body.toString().getBytes());
                 wr.flush();
                 wr.close();
             }
