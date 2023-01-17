@@ -3,7 +3,6 @@ package org.apache.zookeeper.server.auth;
 import org.apache.zookeeper.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.zookeeper.common.security.auth.SaslExtensions;
 import org.apache.zookeeper.common.security.oauthbearer.OAuthBearerToken;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,15 +10,11 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.net.URLEncoder;
+import java.util.*;
 
 public class OAuthLoginModule implements LoginModule {
 
@@ -37,36 +32,36 @@ public class OAuthLoginModule implements LoginModule {
     public static final SaslExtensions RAISE_UNSUPPORTED_CB_EXCEPTION_FLAG = null;
     private static final Logger LOG = LoggerFactory.getLogger(OAuthLoginModule.class);
     private static final SaslExtensions EMPTY_EXTENSIONS = new SaslExtensions(Collections.emptyMap());
-    private Subject subject = null;
 
-    private JSONObject body = new JSONObject();
+    private final Map<String, String> body = new HashMap<>();
 
     OAuthBearerToken[] tokens = new OAuthBearerToken[] {oAuthBearerTokens(), oAuthBearerTokens(), oAuthBearerTokens()};
 
     SaslExtensions[] extensions = new SaslExtensions[] {saslExtensions(),
             saslExtensions(), saslExtensions()};
-    private AuthenticateCallbackHandler callbackHandler = new OAuthCallbackHandler(tokens, extensions);
-    private OAuthBearerToken tokenRequiringCommit = null;
-    private OAuthBearerToken myCommittedToken = null;
-    private SaslExtensions extensionsRequiringCommit = null;
-    private SaslExtensions myCommittedExtensions = null;
+    private final AuthenticateCallbackHandler callbackHandler = new OAuthCallbackHandler(tokens, extensions);
+    private final OAuthBearerToken tokenRequiringCommit = null;
+    private final OAuthBearerToken myCommittedToken = null;
+    private final SaslExtensions extensionsRequiringCommit = null;
+    private final SaslExtensions myCommittedExtensions = null;
     private LoginState loginState;
-    private String authEndpoint,username, password = "";
+    private String authEndpoint;
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
         
         if(options.containsKey("oauth.client-id")){
             LOG.info("Options in jaas config contains the key, {}", options.get("oauth.client-id"));
-            this.subject = subject;
-            username = (String) options.get("oauth.client-id");
-            this.subject.getPublicCredentials().add(username);
-            password = (String) options.get("oauth.client-secret");
-            this.subject.getPrivateCredentials().add(password);
+            String username = (String) options.get("oauth.client-id");
+            subject.getPublicCredentials().add(username);
+            String password = (String) options.get("oauth.client-secret");
+            subject.getPrivateCredentials().add(password);
             authEndpoint = (String) options.get("oauth.auth-endpoint");
             body.put("auth-endpoint", authEndpoint);
             body.put("client-id", username);
             body.put("client-secret", password);
+            body.put("grant_type","client_credentials");
+            body.put("scope", "email");
         }
     }
     
@@ -80,21 +75,18 @@ public class OAuthLoginModule implements LoginModule {
             con.setConnectTimeout(50000);
             con.setReadTimeout(100000);
             // Send post request
-            if(body != null)
-            {
-                con.setDoOutput(true);
-                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                wr.write(body.toString().getBytes());
-                wr.flush();
-                wr.close();
-            }
+            con.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            wr.write(encodeParamValues(body).getBytes());
+            wr.flush();
+            wr.close();
             int responseCode = con.getResponseCode();
-            String respd = "";
             LOG.info("\n Sending {} request to URL {}: ", con.getRequestMethod(), url);
-            LOG.info("Request body: {}" +  body);
+            LOG.info("Request body: {}", body);
             System.out.println("Response Code : " + responseCode);
         
-            InputStream inputStream = null;
+            InputStream inputStream;
+            String respd;
             try
             {
                 inputStream = con.getInputStream();
@@ -105,12 +97,13 @@ public class OAuthLoginModule implements LoginModule {
 
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(inputStream));
-            String inputLine = null;
+            String inputLine;
             StringBuilder response = new StringBuilder();
 
             while ((inputLine = in.readLine()) != null)
             {
                 respd = response.append(inputLine).toString();
+                LOG.info("Response: {}", respd);
             }
             in.close();
 
@@ -119,8 +112,6 @@ public class OAuthLoginModule implements LoginModule {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        
         return true;
     }
 
@@ -141,6 +132,10 @@ public class OAuthLoginModule implements LoginModule {
 
 
     private OAuthBearerToken oAuthBearerTokens() {
+        return getoAuthBearerToken();
+    }
+
+    public static OAuthBearerToken getoAuthBearerToken() {
         return new OAuthBearerToken() {
             @Override
             public String value() {
@@ -168,7 +163,38 @@ public class OAuthLoginModule implements LoginModule {
             }
         };
     }
-     private SaslExtensions saslExtensions() {
+
+    private SaslExtensions saslExtensions() {
         return SaslExtensions.empty();
+    }
+
+    public static String encodeParamValues(Map<String, String> map) {
+    StringBuilder encodedParam = new StringBuilder();
+    try  {
+        List<String> list = new LinkedList<>(map.keySet());
+
+        for (Iterator<String> iterator = list.iterator(); iterator.hasNext();)
+        {
+            String param = iterator.next();
+
+            if(param == null || param.isEmpty() || param.trim().isEmpty())
+            {
+                param = "";
+            }
+
+            encodedParam.append(param).append("=").append(URLEncoder.encode(map.get(param), "UTF-8"));
+
+            if (iterator.hasNext())
+            {
+                encodedParam.append("&");
+            }
+
+        }
+
+    } catch (UnsupportedEncodingException ex)
+    {
+        ex.printStackTrace();
+    }
+        return encodedParam.toString();
     }
 }

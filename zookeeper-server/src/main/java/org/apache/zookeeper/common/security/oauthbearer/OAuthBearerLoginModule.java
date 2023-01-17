@@ -37,6 +37,8 @@ import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.util.*;
 
+import static org.apache.zookeeper.server.auth.OAuthLoginModule.getoAuthBearerToken;
+
 /**
  * The {@code LoginModule} for the SASL/OAUTHBEARER mechanism. When a client
  * (whether a non-broker client or a broker when SASL/OAUTHBEARER is the
@@ -430,32 +432,7 @@ public class OAuthBearerLoginModule implements LoginModule {
     }
 
     private OAuthBearerToken oAuthBearerTokens() {
-        return new OAuthBearerToken() {
-            @Override
-            public String value() {
-                return null;
-            }
-
-            @Override
-            public Long startTimeMs() {
-                return null;
-            }
-
-            @Override
-            public Set<String> scope() {
-                return null;
-            }
-
-            @Override
-            public String principalName() {
-                return null;
-            }
-
-            @Override
-            public long lifetimeMs() {
-                return 10000000;
-            }
-        };
+        return getoAuthBearerToken();
     }
      private SaslExtensions saslExtensions() {
         return SaslExtensions.empty();
