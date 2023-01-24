@@ -58,8 +58,8 @@ public class OAuthLoginModule implements LoginModule {
             subject.getPrivateCredentials().add(password);
             authEndpoint = (String) options.get("oauth.auth-endpoint");
             body.put("auth-endpoint", authEndpoint);
-            body.put("client-id", username);
-            body.put("client-secret", password);
+            body.put("client_id", username);
+            body.put("client_secret", password);
             body.put("grant_type","client_credentials");
             body.put("scope", "email");
         }
