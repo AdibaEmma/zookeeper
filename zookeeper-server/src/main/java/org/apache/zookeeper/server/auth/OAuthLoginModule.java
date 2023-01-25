@@ -3,8 +3,12 @@ package org.apache.zookeeper.server.auth;
 import org.apache.zookeeper.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.zookeeper.common.security.auth.SaslExtensions;
 import org.apache.zookeeper.common.security.oauthbearer.OAuthBearerToken;
+import org.apache.zookeeper.server.admin.JsonOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -86,7 +90,7 @@ public class OAuthLoginModule implements LoginModule {
             System.out.println("Response Code : " + responseCode);
         
             InputStream inputStream;
-            String respd;
+            String respd = "";
             try
             {
                 inputStream = con.getInputStream();
@@ -103,16 +107,27 @@ public class OAuthLoginModule implements LoginModule {
             while ((inputLine = in.readLine()) != null)
             {
                 respd = response.append(inputLine).toString();
+
+                //Print contents of the response from call here
                 LOG.info("Response: {}", respd);
             }
             in.close();
 
-            //Print contents of the response from call here
+            List<String> keys = new ArrayList<>();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(respd);
+            Iterator<String> iterator = jsonNode.fieldNames();
+            iterator.forEachRemaining(e -> keys.add(e));
+
+            boolean hasAccessToken = keys.stream().anyMatch(c -> c.equals("access_token"));
+            LOG.info("Reponse has access_token key: {}", hasAccessToken);
+            return hasAccessToken;
 
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return true;
+        
     }
 
     @Override
