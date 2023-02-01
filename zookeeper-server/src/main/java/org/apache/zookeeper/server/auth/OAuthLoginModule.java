@@ -1,14 +1,12 @@
 package org.apache.zookeeper.server.auth;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.zookeeper.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.zookeeper.common.security.auth.SaslExtensions;
 import org.apache.zookeeper.common.security.oauthbearer.OAuthBearerToken;
-import org.apache.zookeeper.server.admin.JsonOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -120,7 +118,8 @@ public class OAuthLoginModule implements LoginModule {
             iterator.forEachRemaining(e -> keys.add(e));
 
             boolean hasAccessToken = keys.stream().anyMatch(c -> c.equals("access_token"));
-            LOG.info("Reponse has access_token key: {}", hasAccessToken);
+            LOG.info("Response has access_token key: {}", hasAccessToken);
+            if (hasAccessToken) loginState = LoginState.COMMITTED;
             return hasAccessToken;
 
         } catch (Exception e) {
