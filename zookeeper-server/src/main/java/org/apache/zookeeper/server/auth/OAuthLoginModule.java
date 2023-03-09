@@ -131,7 +131,7 @@ public class OAuthLoginModule implements LoginModule {
 
     @Override
     public boolean commit() throws LoginException {
-        return false;
+        return true;
     }
 
     @Override
@@ -182,7 +182,7 @@ public class OAuthLoginModule implements LoginModule {
         return SaslExtensions.empty();
     }
 
-    public static String encodeParamValues(Map<String, String> map) {
+        public static String encodeParamValues(Map<String, String> map) {
     StringBuilder encodedParam = new StringBuilder();
     try  {
         List<String> list = new LinkedList<>(map.keySet());
