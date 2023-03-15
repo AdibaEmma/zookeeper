@@ -47,17 +47,19 @@ public class OAuthLoginModule implements LoginModule {
     private final SaslExtensions extensionsRequiringCommit = null;
     private final SaslExtensions myCommittedExtensions = null;
     private LoginState loginState;
+
+    private Subject subject;
     private String authEndpoint;
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        
         if(options.containsKey("oauth.client-id")){
             LOG.info("Options in jaas config contains the key, {}", options.get("oauth.client-id"));
+            this.subject = subject;
             String username = (String) options.get("oauth.client-id");
-            subject.getPublicCredentials().add(username);
+            this.subject.getPublicCredentials().add(username);
             String password = (String) options.get("oauth.client-secret");
-            subject.getPrivateCredentials().add(password);
+            this.subject.getPrivateCredentials().add(password);
             authEndpoint = (String) options.get("oauth.auth-endpoint");
             body.put("auth-endpoint", authEndpoint);
             body.put("client_id", username);
